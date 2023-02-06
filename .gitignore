@@ -1,1 +1,4 @@
 /LMSApplicationLibrary/build/
+/LMSApplication/LMSApplication-ejb/dist/
+/LMSApplication/LMSApplication-war/dist/
+/LMSApplication/LMSApplication-war/build/
