@@ -11,6 +11,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -23,12 +29,27 @@ public class Member implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long memberId;
+    
+    @NotBlank(message = "Member first name cannot be null or empty")
     private String firstName;
+    
+    @NotBlank(message = "Member last name cannot be null or empty")
     private String lastName;
+
+    @NotNull(message = "Member gender cannot be null")
     private char gender;
+    
+    @NotNull(message = "Member age cannot be null")
+    @PositiveOrZero(message = "Member age cannot be negative")
     private Integer age;
+    
+    @NotBlank(message = "Member identity nos cannot be null or empty")
     private String identityNo;
+
+    @NotBlank(message = "Member phone nos cannot be null or empty")
     private String phone;
+    
+    @NotBlank(message = "Member address cannot be null or empty")
     private String address;
     
     @OneToMany(mappedBy="member")

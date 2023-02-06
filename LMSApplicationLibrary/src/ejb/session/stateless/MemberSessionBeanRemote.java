@@ -2,6 +2,7 @@
 package ejb.session.stateless;
 
 import entity.Member;
+import exception.InputDataValidationException;
 import exception.MemberNotFoundException;
 import java.util.List;
 import javax.ejb.Remote;
@@ -13,7 +14,7 @@ import javax.ejb.Remote;
 @Remote
 public interface MemberSessionBeanRemote {
     
-    public Long createNewMember(Member member);
+    public Long createNewMember(Member member) throws InputDataValidationException;
 
     public List<Member> retrieveAllMembers();
     

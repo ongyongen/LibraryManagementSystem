@@ -11,6 +11,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -23,8 +25,14 @@ public class Book implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bookId;
+    
+    @NotBlank(message = "Book title cannot be null")
     private String title;
+    
+    @NotBlank(message = "Book isbn cannot be null")
     private String isbn;
+    
+    @NotBlank(message = "Book author cannot be null")
     private String author;
     
     @OneToMany(mappedBy="book")

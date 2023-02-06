@@ -5,6 +5,7 @@
 package ejb.session.stateless;
 
 import entity.Member;
+import exception.InputDataValidationException;
 import exception.MemberNotFoundException;
 import java.util.List;
 import javax.ejb.Local;
@@ -16,7 +17,7 @@ import javax.ejb.Local;
 @Local
 public interface MemberSessionBeanLocal {
 
-    public Long createNewMember(Member member);
+    public Long createNewMember(Member member) throws InputDataValidationException;
 
     public List<Member> retrieveAllMembers();
 

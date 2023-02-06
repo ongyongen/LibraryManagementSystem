@@ -3,6 +3,7 @@ package ejb.session.stateless;
 
 import entity.Book;
 import exception.BookNotFoundException;
+import exception.InputDataValidationException;
 import java.util.List;
 import javax.ejb.Remote;
 
@@ -13,7 +14,7 @@ import javax.ejb.Remote;
 @Remote
 public interface BookSessionBeanRemote {
     
-    public Long createNewBook (Book book);
+    public Long createNewBook (Book book) throws InputDataValidationException;
     
     public List<Book> retrieveAllBooks();
     

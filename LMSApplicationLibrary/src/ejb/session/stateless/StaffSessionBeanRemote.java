@@ -2,6 +2,7 @@
 package ejb.session.stateless;
 
 import entity.Staff;
+import exception.InputDataValidationException;
 import exception.InvalidLoginException;
 import exception.StaffNotFoundException;
 import java.util.List;
@@ -14,7 +15,7 @@ import javax.ejb.Remote;
 @Remote
 public interface StaffSessionBeanRemote {
      
-    public Long createNewStaff(Staff staff);
+    public Long createNewStaff(Staff staff) throws InputDataValidationException;
 
     public List<Staff> retrieveAllStaff();
 

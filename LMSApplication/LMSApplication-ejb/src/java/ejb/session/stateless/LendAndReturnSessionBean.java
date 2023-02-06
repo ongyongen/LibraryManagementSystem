@@ -7,16 +7,23 @@ import entity.Member;
 import exception.BookNotAvailableException;
 import exception.BookNotFoundException;
 import exception.FineNotPaidException;
+import exception.InputDataValidationException;
 import exception.LendingNotFoundException;
 import exception.MemberNotFoundException;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+import javax.validation.Validator;
+
 
 /**
  *
@@ -33,12 +40,30 @@ public class LendAndReturnSessionBean implements LendAndReturnSessionBeanRemote,
 
     @PersistenceContext(unitName = "LMSApplication-ejbPU")
     private EntityManager em;
+    
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
 
+    public LendAndReturnSessionBean() {
+        this.validatorFactory = Validation.buildDefaultValidatorFactory();
+        this.validator = validatorFactory.getValidator();
+    }
+    
+    private String prepareInputDataValidationErrorMsg(Set<ConstraintViolation<LendAndReturn>> violations) {
+        String msg = "Input data validation error :";
+
+        for (ConstraintViolation violation : violations) {
+            msg += "\n" + violation.getPropertyPath() + " - " + violation.getMessage();
+        }
+
+        return msg;
+    }
+           
     @Override
-    public Long createLendingRecord(String memberIdentityNo, String bookTitle) throws MemberNotFoundException, BookNotFoundException, BookNotAvailableException {
+    public Long createLendingRecord(String memberIdentityNo, String bookTitle, Date currentDate) throws MemberNotFoundException, BookNotFoundException, BookNotAvailableException, InputDataValidationException {
         Member member = memberSessionBeanLocal.retrieveMemberByIdentityNo(memberIdentityNo);
         Book book = bookSessionBeanLocal.retrieveBookByTitle(bookTitle);
-        
+                
         Long bookId = book.getBookId();
         List<LendAndReturn> bookRecords = this.retrieveAllLendingRecordsByBookId(bookId);
         boolean isAvailable = true;
@@ -46,7 +71,6 @@ public class LendAndReturnSessionBean implements LendAndReturnSessionBeanRemote,
             for (LendAndReturn bookRecord : bookRecords) {
                 Date lendDate = bookRecord.getLendDate();
                 Date returnDate = bookRecord.getReturnDate();
-                Date currentDate = new Date();
                 if (currentDate.after(lendDate) && returnDate == null) {
                     isAvailable = false;
                     break;
@@ -55,14 +79,18 @@ public class LendAndReturnSessionBean implements LendAndReturnSessionBeanRemote,
         }
         
         if (isAvailable == true) {
-            LendAndReturn record = new LendAndReturn(new Date());
+            LendAndReturn record = new LendAndReturn(currentDate);
             record.setMember(member);
             record.setBook(book);
-        
-            em.persist(record);
-            em.flush();
-
-            return record.getLendId();
+                        
+            Set<ConstraintViolation<LendAndReturn>> constraintViolations = validator.validate(record);
+            if (constraintViolations.isEmpty()) {
+                em.persist(record);
+                em.flush();
+                return record.getLendId();
+            } else {
+                throw new InputDataValidationException(prepareInputDataValidationErrorMsg(constraintViolations));
+            }
             
         } else {
             throw new BookNotAvailableException();
@@ -77,6 +105,13 @@ public class LendAndReturnSessionBean implements LendAndReturnSessionBeanRemote,
         return query.getResultList();   
     }
     
+    public List<LendAndReturn> retrieveAllLendingRecordsByBookId(Long bookId) {
+        Query query = em.createQuery("SELECT record FROM LendAndReturn record "
+                + "WHERE record.book.bookId = :bookId");
+        query.setParameter("bookId", bookId);
+        return query.getResultList();
+    }
+    
     @Override
     public LendAndReturn retrieveLendingRecordById(Long recordId) throws LendingNotFoundException {
         if (em.find(LendAndReturn.class, recordId) == null) {
@@ -87,13 +122,6 @@ public class LendAndReturnSessionBean implements LendAndReturnSessionBeanRemote,
         }
     }
     
-    public List<LendAndReturn> retrieveAllLendingRecordsByBookId(Long bookId) {
-        Query query = em.createQuery("SELECT record FROM LendAndReturn record "
-                + "WHERE record.book.bookId = :bookId");
-        query.setParameter("bookId", bookId);
-        return query.getResultList();
-    }
-
     @Override
     public LendAndReturn retrieveLendingRecordByIdNoAndTitle(String idNo, String title) throws LendingNotFoundException, BookNotFoundException, MemberNotFoundException {
         Long bookId = bookSessionBeanLocal.retrieveBookByTitle(title).getBookId();
@@ -122,9 +150,8 @@ public class LendAndReturnSessionBean implements LendAndReturnSessionBeanRemote,
     }
     
     @Override
-    public BigDecimal retrieveFineAmountForRecord(Long recordId) throws LendingNotFoundException, BookNotFoundException, MemberNotFoundException {
+    public BigDecimal retrieveFineAmountForRecord(Long recordId, Date currentDate) throws LendingNotFoundException, BookNotFoundException, MemberNotFoundException {
         LendAndReturn record = this.retrieveLendingRecordById(recordId);
-        Date currentDate = new Date();
         Date lendDate = record.getLendDate();    
         return calculateFineAmount(currentDate, lendDate);
     }

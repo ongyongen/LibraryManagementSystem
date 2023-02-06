@@ -5,6 +5,7 @@ import entity.LendAndReturn;
 import exception.BookNotAvailableException;
 import exception.BookNotFoundException;
 import exception.FineNotPaidException;
+import exception.InputDataValidationException;
 import exception.LendingNotFoundException;
 import exception.MemberNotFoundException;
 import java.math.BigDecimal;
@@ -19,7 +20,7 @@ import javax.ejb.Remote;
 @Remote
 public interface LendAndReturnSessionBeanRemote {
     
-    public Long createLendingRecord(String memberIdentityNo, String bookTitle) throws MemberNotFoundException, BookNotFoundException, BookNotAvailableException;    
+    public Long createLendingRecord(String memberIdentityNo, String bookTitle, Date currentDate) throws MemberNotFoundException, BookNotFoundException, BookNotAvailableException, InputDataValidationException;    
 
     public LendAndReturn retrieveLendingRecordByIdNoAndTitle(String idNo, String title) throws LendingNotFoundException, BookNotFoundException, MemberNotFoundException;
 
@@ -29,7 +30,7 @@ public interface LendAndReturnSessionBeanRemote {
 
     public BigDecimal calculateFineAmount(Date currentDate, Date lendDate);
 
-    public BigDecimal retrieveFineAmountForRecord(Long recordId) throws LendingNotFoundException, BookNotFoundException, MemberNotFoundException;
+    public BigDecimal retrieveFineAmountForRecord(Long recordId, Date currentDate) throws LendingNotFoundException, BookNotFoundException, MemberNotFoundException;
 
     public void returnBookNotLate(Long recordId, Date returnDate) throws LendingNotFoundException, BookNotFoundException, MemberNotFoundException;
 

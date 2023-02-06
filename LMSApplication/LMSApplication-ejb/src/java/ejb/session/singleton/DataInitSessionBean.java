@@ -11,6 +11,7 @@ import entity.Member;
 import entity.Staff;
 import exception.BookNotAvailableException;
 import exception.BookNotFoundException;
+import exception.InputDataValidationException;
 import exception.MemberNotFoundException;
 import java.text.Format;
 import java.text.ParseException;
@@ -88,13 +89,13 @@ public class DataInitSessionBean {
                 Date date =  new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(dateString);  
 
 
-                lendAndReturnSessionBeanLocal.createLendingRecord("S8900678A", "Anna Karenina");
-                lendAndReturnSessionBeanLocal.createLendingRecord("S8900678A", "Madame Bovary");
-                lendAndReturnSessionBeanLocal.createLendingRecord("S8900678A", "Hamlet");
-                lendAndReturnSessionBeanLocal.createLendingRecord("S8581028X", "The Hobbit");
-                lendAndReturnSessionBeanLocal.createLendingRecord("S8581028X", "Great Expectations");
+                lendAndReturnSessionBeanLocal.createLendingRecord("S8900678A", "Anna Karenina", new Date());
+//                lendAndReturnSessionBeanLocal.createLendingRecord("S8900678A", "Madame Bovary"  new Date());
+//                lendAndReturnSessionBeanLocal.createLendingRecord("S8900678A", "Hamlet"  new Date());
+//                lendAndReturnSessionBeanLocal.createLendingRecord("S8581028X", "The Hobbit"  new Date());
+//                lendAndReturnSessionBeanLocal.createLendingRecord("S8581028X", "Great Expectations"  new Date());
 
-            } catch (MemberNotFoundException | BookNotFoundException | BookNotAvailableException | ParseException ex) {
+            } catch (MemberNotFoundException | BookNotFoundException | BookNotAvailableException | ParseException | InputDataValidationException ex) {
                 System.out.println("Error");
             }
 

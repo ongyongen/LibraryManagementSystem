@@ -13,6 +13,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 
 /**
  *
@@ -25,8 +27,13 @@ public class LendAndReturn implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long lendId;
+    
+    @NotNull(message = "Lend Date for lending record cannot be null")
     private Date lendDate;
+    
     private Date returnDate;
+    
+    @PositiveOrZero(message = "Fine amount should be more than or equal to $0.00")
     private BigDecimal fineAmount;
     
     @ManyToOne
